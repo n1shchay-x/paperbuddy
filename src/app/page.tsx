@@ -1,66 +1,174 @@
-import Image from "next/image";
+"use client";
+
+import { useState } from "react";
+import { QuestionPaper } from "@/types";
+import { parseRawText } from "@/utils/parser";
 import styles from "./page.module.css";
+import { FileText, Download, Printer } from "lucide-react";
+import PrintView from "@/components/PrintView";
+import { generateWordDoc } from "@/utils/docxGenerator";
 
 export default function Home() {
+  const [rawText, setRawText] = useState("");
+  const [paper, setPaper] = useState<QuestionPaper | null>(null);
+
+  const handleParse = () => {
+    if (!rawText.trim()) return;
+    const parsed = parseRawText(rawText);
+    setPaper(parsed);
+  };
+
+  const handlePrint = () => {
+    window.print();
+  };
+
+  const handleWordExport = async () => {
+    if (!paper) return;
+    const blob = await generateWordDoc(paper);
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `QuestionPaper_${paper.meta.standard}_${paper.meta.subject}.docx`;
+    a.click();
+  };
+
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className={styles.intro}>
-          <h1>To get started, edit the page.tsx file.</h1>
-          <p>
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+    <>
+      <div className={`${styles.container} no-print`}>
+        <header className={styles.header}>
+          <h1 className={styles.title}>PaperBuddy</h1>
+          <p className={styles.subtitle}>S-Tier Document Generation Engine</p>
+        </header>
+
+        <div className={styles.grid}>
+          {/* Left Panel: Smart Paste */}
+          <section className={styles.panel}>
+            <div className={styles.panelTitle}>
+              <span>Smart Paste Data</span>
+              <FileText size={20} />
+            </div>
+            <textarea 
+              className={styles.textarea} 
+              placeholder="Paste the raw WhatsApp message here..."
+              value={rawText}
+              onChange={(e) => setRawText(e.target.value)}
             />
-            Deploy Now
-          </a>
-          <a
-            className={styles.secondary}
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+            <button className={styles.btn} onClick={handleParse}>
+              Extract & Build Form
+            </button>
+          </section>
+
+          {/* Right Panel: Manual Review Form */}
+          <section className={styles.panel}>
+            <div className={styles.panelTitle}>
+              <span>Document Structure Review</span>
+            </div>
+            
+            {!paper ? (
+              <div style={{ color: "var(--muted-foreground)", padding: "40px", textAlign: "center", border: "1px dashed var(--border)", borderRadius: "var(--radius)" }}>
+                Awaiting Data Extraction...
+              </div>
+            ) : (
+              <>
+                {/* Meta Editor */}
+                <div className={styles.metaGrid}>
+                  <div className={styles.inputGroup}>
+                    <label className={styles.label}>Standard</label>
+                    <input className={styles.input} value={paper.meta.standard} onChange={e => setPaper({...paper, meta: {...paper.meta, standard: e.target.value}})} />
+                  </div>
+                  <div className={styles.inputGroup}>
+                    <label className={styles.label}>Subject</label>
+                    <input className={styles.input} value={paper.meta.subject} onChange={e => setPaper({...paper, meta: {...paper.meta, subject: e.target.value}})} />
+                  </div>
+                  <div className={styles.inputGroup}>
+                    <label className={styles.label}>Chapter</label>
+                    <input className={styles.input} value={paper.meta.chapter || ""} onChange={e => setPaper({...paper, meta: {...paper.meta, chapter: e.target.value}})} />
+                  </div>
+                  <div className={styles.inputGroup}>
+                    <label className={styles.label}>Total Marks</label>
+                    <input type="number" className={styles.input} value={paper.meta.totalMarks} onChange={e => setPaper({...paper, meta: {...paper.meta, totalMarks: parseInt(e.target.value) || 0}})} />
+                  </div>
+                  <div className={styles.inputGroup}>
+                    <label className={styles.label}>Date</label>
+                    <input className={styles.input} value={paper.meta.date} onChange={e => setPaper({...paper, meta: {...paper.meta, date: e.target.value}})} />
+                  </div>
+                </div>
+
+                {/* Sections Editor */}
+                <div style={{ marginTop: "16px", display: "flex", flexDirection: "column", gap: "16px" }}>
+                  <h3 className={styles.label}>Sections & Questions</h3>
+                  {paper.sections.map((sec, sIdx) => (
+                    <div key={sec.id} className={styles.section}>
+                      <input 
+                        className={styles.input} 
+                        style={{ fontWeight: "bold", marginBottom: "12px", width: "100%" }}
+                        value={sec.title} 
+                        onChange={e => {
+                          const newSections = [...paper.sections];
+                          newSections[sIdx].title = e.target.value;
+                          setPaper({...paper, sections: newSections});
+                        }} 
+                      />
+                      
+                      {sec.questions.map((q, qIdx) => (
+                        <div key={q.id} className={styles.question}>
+                          <div className={styles.questionHeader}>
+                            <input 
+                              className={`${styles.input} ${styles.questionNumber}`} 
+                              value={q.number} 
+                              onChange={e => {
+                                const newSections = [...paper.sections];
+                                newSections[sIdx].questions[qIdx].number = e.target.value;
+                                setPaper({...paper, sections: newSections});
+                              }}
+                            />
+                            <textarea 
+                              className={`${styles.input} ${styles.questionText}`} 
+                              value={q.text} 
+                              onChange={e => {
+                                const newSections = [...paper.sections];
+                                newSections[sIdx].questions[qIdx].text = e.target.value;
+                                setPaper({...paper, sections: newSections});
+                              }}
+                              rows={2}
+                            />
+                            <input 
+                              type="number"
+                              className={`${styles.input} ${styles.questionMarks}`} 
+                              value={q.marks} 
+                              onChange={e => {
+                                const newSections = [...paper.sections];
+                                newSections[sIdx].questions[qIdx].marks = parseInt(e.target.value) || 0;
+                                setPaper({...paper, sections: newSections});
+                              }}
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ))}
+                </div>
+
+                {/* Action Buttons */}
+                <div style={{ display: "flex", gap: "16px", marginTop: "24px" }}>
+                  <button className={styles.btn} onClick={handlePrint} style={{ flex: 1 }}>
+                    <Printer size={18} /> Print to PDF
+                  </button>
+                  <button className={styles.btnOutline} onClick={handleWordExport} style={{ flex: 1 }}>
+                    <Download size={18} /> Export Word (.docx)
+                  </button>
+                </div>
+              </>
+            )}
+          </section>
         </div>
-      </main>
-    </div>
+      </div>
+
+      {paper && (
+        <div className={styles.printContainer}>
+          <PrintView paper={paper} />
+        </div>
+      )}
+    </>
   );
 }
