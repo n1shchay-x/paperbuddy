@@ -69,7 +69,7 @@ export default function Home() {
             <FileText size={36} strokeWidth={2.5} />
             <h1 className={styles.title}>PaperBuddy</h1>
           </div>
-          <p className={styles.subtitle}>S-Tier Document Generation Engine</p>
+          <p className={styles.subtitle}>From WhatsApp to Print in Seconds</p>
         </header>
 
         <div className={styles.grid}>
