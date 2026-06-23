@@ -41,9 +41,18 @@
   .questionHeader {
     flex-direction: column;
   }
-  .questionNumber, .questionMarks {
+  .questionNumber, .questionMarks, .questionText {
     width: 100%;
   }
+  .actionButtons {
+    flex-direction: column;
+  }
+}
+
+.actionButtons {
+  display: flex;
+  gap: 16px;
+  margin-top: 24px;
 }
 
 .panel {

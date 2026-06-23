@@ -182,7 +182,7 @@ export default function Home() {
                 </div>
 
                 {/* Action Buttons */}
-                <div style={{ display: "flex", gap: "16px", marginTop: "24px" }}>
+                <div className={styles.actionButtons}>
                   <button className={styles.btnOutline} onClick={handlePrint} style={{ flex: 1 }}>
                     <Printer size={18} /> Print to PDF
                   </button>
@@ -199,7 +199,7 @@ export default function Home() {
         </div>
 
         <footer className={styles.footer}>
-          curated by : nishchay joshi
+          Curated by: Nishchay Joshi
         </footer>
       </div>
 
