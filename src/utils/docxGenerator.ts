@@ -7,6 +7,16 @@ export const generateWordDoc = async (paper: QuestionPaper): Promise<Blob> => {
   const columns = mainQuestions.length > 0 ? mainQuestions : ["1", "2", "3", "4", "5"];
 
   const doc = new Document({
+    styles: {
+      default: {
+        document: {
+          run: {
+            font: "Nirmala UI", // Best support for Gujarati/Hindi on Windows
+            size: 22, // 11pt
+          },
+        },
+      },
+    },
     sections: [
       {
         properties: {
@@ -120,12 +130,16 @@ export const generateWordDoc = async (paper: QuestionPaper): Promise<Blob> => {
             }
 
             section.questions.forEach(q => {
+              // Parse newlines in question text
+              const textLines = q.text.split("\n");
+              const textRuns = textLines.map((line, i) => new TextRun({ text: line, break: i > 0 ? 1 : 0 }));
+
               // Question Header
               sectionElements.push(
                 new Paragraph({
                   children: [
                     new TextRun({ text: `પ્રશ્ન - ${q.number} `, bold: true }),
-                    new TextRun({ text: q.text }),
+                    ...textRuns,
                     new TextRun({ text: `\t\t(${String(q.marks).padStart(2, '0')})`, bold: true }), // Marks aligned right-ish
                   ],
                 })

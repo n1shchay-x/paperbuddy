@@ -72,14 +72,40 @@ export default function PrintView({ paper }: { paper: QuestionPaper }) {
             {/* We might not want to print "Section A" if the original paper doesn't have it, but we'll include it for clarity if present */}
             {section.title !== "General" && <div className={styles.sectionTitle}>{section.title}</div>}
             
-            {section.questions.map((q, qIdx) => (
-              <div key={q.id} className={styles.questionBlock}>
-                <div className={styles.questionHeader}>
-                  <div className={styles.questionText}>
-                    પ્રશ્ન - {q.number} {q.text}
+            {section.questions.map((q, qIdx) => {
+              // Parse text for table structures (lines with |)
+              const textLines = q.text.split("\n");
+              const hasTable = textLines.some(l => l.includes("|"));
+              
+              return (
+                <div key={q.id} className={styles.questionBlock}>
+                  <div className={styles.questionHeader}>
+                    <div className={styles.questionText}>
+                      પ્રશ્ન - {q.number}{" "}
+                      {hasTable ? (
+                        <div style={{ marginTop: "10px" }}>
+                          {textLines.map((line, i) => {
+                            if (line.includes("|")) {
+                              const cells = line.split("|").map(c => c.trim());
+                              return (
+                                <div key={i} style={{ display: "flex", borderBottom: "1px solid #ccc" }}>
+                                  {cells.map((cell, j) => (
+                                    <div key={j} style={{ flex: 1, padding: "4px", borderRight: j < cells.length - 1 ? "1px solid #ccc" : "none", fontWeight: i === 0 ? "bold" : "normal" }}>
+                                      {cell}
+                                    </div>
+                                  ))}
+                                </div>
+                              );
+                            }
+                            return <div key={i}>{line}</div>;
+                          })}
+                        </div>
+                      ) : (
+                        q.text
+                      )}
+                    </div>
+                    <div className={styles.questionMarks}>({String(q.marks).padStart(2, '0')})</div>
                   </div>
-                  <div className={styles.questionMarks}>({String(q.marks).padStart(2, '0')})</div>
-                </div>
 
                 {/* Answer Area based on type */}
                 {q.type === "FILL_IN_BLANK" || q.type === "ONE_WORD" ? (
@@ -102,7 +128,8 @@ export default function PrintView({ paper }: { paper: QuestionPaper }) {
                 ) : null}
 
               </div>
-            ))}
+              );
+            })}
           </div>
         ))}
       </div>

@@ -22,6 +22,26 @@ export default function Home() {
     window.print();
   };
 
+  const handleDownloadPDF = async () => {
+    if (!paper) return;
+    try {
+      // @ts-ignore
+      const html2pdf = (await import("html2pdf.js")).default;
+      const element = document.getElementById("print-view-container");
+      const opt = {
+        margin:       10,
+        filename:     `QuestionPaper_${paper.meta.standard}_${paper.meta.subject}.pdf`,
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2 },
+        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      };
+      html2pdf().set(opt).from(element).save();
+    } catch (e) {
+      console.error(e);
+      alert("Failed to download PDF directly. Please use 'Print to PDF' instead.");
+    }
+  };
+
   const handleWordExport = async () => {
     if (!paper) return;
     const blob = await generateWordDoc(paper);
@@ -151,8 +171,11 @@ export default function Home() {
 
                 {/* Action Buttons */}
                 <div style={{ display: "flex", gap: "16px", marginTop: "24px" }}>
-                  <button className={styles.btn} onClick={handlePrint} style={{ flex: 1 }}>
+                  <button className={styles.btnOutline} onClick={handlePrint} style={{ flex: 1 }}>
                     <Printer size={18} /> Print to PDF
+                  </button>
+                  <button className={styles.btn} onClick={handleDownloadPDF} style={{ flex: 1 }}>
+                    <FileText size={18} /> Download PDF
                   </button>
                   <button className={styles.btnOutline} onClick={handleWordExport} style={{ flex: 1 }}>
                     <Download size={18} /> Export Word (.docx)
@@ -165,7 +188,7 @@ export default function Home() {
       </div>
 
       {paper && (
-        <div className={styles.printContainer}>
+        <div id="print-view-container" className={styles.printContainer}>
           <PrintView paper={paper} />
         </div>
       )}
