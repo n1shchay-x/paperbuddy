@@ -29,6 +29,10 @@ export default function Home() {
       const html2pdf = (await import("html2pdf.js")).default;
       const element = document.getElementById("print-view-container");
       if (!element) return;
+      
+      // Temporarily show the element so html2pdf can capture it
+      element.style.display = 'block';
+
       const opt = {
         margin:       10,
         filename:     `QuestionPaper_${paper.meta.standard}_${paper.meta.subject}.pdf`,
@@ -36,7 +40,11 @@ export default function Home() {
         html2canvas:  { scale: 2 },
         jsPDF:        { unit: 'mm' as const, format: 'a4' as const, orientation: 'portrait' as const }
       };
-      html2pdf().set(opt).from(element).save();
+      
+      await html2pdf().set(opt).from(element).save();
+      
+      // Hide it again
+      element.style.display = '';
     } catch (e) {
       console.error(e);
       alert("Failed to download PDF directly. Please use 'Print to PDF' instead.");

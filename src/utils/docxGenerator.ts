@@ -147,11 +147,11 @@ export const generateWordDoc = async (paper: QuestionPaper): Promise<Blob> => {
 
               // Answer space based on type
               if (q.type === "FILL_IN_BLANK" || q.type === "ONE_WORD") {
-                sectionElements.push(new Paragraph({ text: "____________________________________________________________" }));
+                sectionElements.push(new Paragraph({ text: "" }));
               } else if (q.type === "DESCRIPTIVE") {
                 const lines = q.linesRequired || 4;
                 for (let i = 0; i < lines; i++) {
-                  sectionElements.push(new Paragraph({ text: "____________________________________________________________________________________" }));
+                  sectionElements.push(new Paragraph({ text: "" }));
                 }
               } else if (q.type === "MCQ" && q.options && q.options.length > 0) {
                 const optionsText = q.options.map((opt, i) => `${String.fromCharCode(65 + i)}. ${opt.text}`).join("    ");

@@ -14,7 +14,6 @@ export default function PrintView({ paper }: { paper: QuestionPaper }) {
       
       {/* Header Block */}
       <div className={styles.headerBlock}>
-        <div className={styles.logoPlaceholder}>Logo</div>
         <div className={styles.headerText}>
           <h1 className={styles.schoolName}>{paper.meta.schoolName}</h1>
           <div className={styles.subtitles}>
