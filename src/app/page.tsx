@@ -65,7 +65,10 @@ export default function Home() {
     <>
       <div className={`${styles.container} no-print`}>
         <header className={styles.header}>
-          <h1 className={styles.title}>PaperBuddy</h1>
+          <div className={styles.titleWrapper}>
+            <FileText size={36} strokeWidth={2.5} />
+            <h1 className={styles.title}>PaperBuddy</h1>
+          </div>
           <p className={styles.subtitle}>S-Tier Document Generation Engine</p>
         </header>
 
@@ -194,6 +197,10 @@ export default function Home() {
             )}
           </section>
         </div>
+
+        <footer className={styles.footer}>
+          curated by : nishchay joshi
+        </footer>
       </div>
 
       {paper && (
