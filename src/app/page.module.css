@@ -34,6 +34,12 @@
   .grid {
     grid-template-columns: 1fr;
   }
+  .questionHeader {
+    flex-direction: column;
+  }
+  .questionNumber, .questionMarks {
+    width: 100%;
+  }
 }
 
 .panel {

@@ -93,10 +93,14 @@
   font-size: 14pt;
   text-align: center;
   margin: 15px 0;
+  page-break-after: avoid;
+  break-after: avoid;
 }
 
 .questionBlock {
   margin-bottom: 15px;
+  page-break-inside: avoid;
+  break-inside: avoid;
 }
 
 .questionHeader {
